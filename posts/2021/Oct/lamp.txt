@@ -1,0 +1,221 @@
+                                                         License: Public domain
+
+                                 Deploy LAMP stack
+                                 - taiprogramer -
+
+                                                      Date created: Oct 19 2021
+                                                     Last modified: Oct 21 2021
+
+I. Introduction
+
+1. What is LAMP?
+
+- L(Linux): everyone likes to call it an operating system.  But more accurately,
+  it's GNU/Linux (to respect the people behind it). Ya, you can call some
+  distribution like Alpine Linux is Linux because It's just Linux.
+
+- A(Apache): Webserver - You serve your website at port 80. Then, everybody on
+  the Internet can access it. (Try taiprogramer.xyz if you can)
+
+- M(MySQL): Database Management System - it's a software you use to manage your
+  database (but what is a database? database is a database)
+
+- P(PHP): It's cool to hate PHP. It's a programming language used on your web
+  server (you can see index.php). It contains logical for your site, for
+  example, connecting to the database, loading dynamic content (profile page of
+  a specific user)
+
+2. What steps are needed to deploy a LAMP stack?
+
+Here is a list of steps you have to perform to deploy a LAMP stack:
+
+2.1 Install Apache Webserver
+
+Expected result:
+
+- Can access the default index page of Apache via a Web browser (Lynx, surf,
+  qutebrowser, Firefox, Brave, PaleMoon, and more). (http://localhost)
+
+- Know where index.html is stored.
+
+2.2 Integrate PHP to Apache
+
+Expected result:
+
+- Can run PHP script on the webserver. For example, index.php with the following
+  content below.
+
+--index.php
+<?php
+	echo "<h1>taiprogramer</h1>";
+	echo "<i>- An old-fashioned guy</i>";
+?>
+--
+
+2.3 Integrate MySQL
+
+Expected result:
+
+- Can connect to our running MySQL server with PHP script served by the
+  webserver. (http://localhost/mysql_test.php)
+
+--mysql_test.php
+// script to connect to MySQL server
+--
+
+II. Make it works! (KISS principle)
+
+We are working on GNU/Linux operating system called Debian (version 11).
+
+1. Install Apache Webserver
+
+`sh
+sudo apt install apache2
+`
+
+Check the status of the Apache service.
+
+`sh
+systemctl status apache2
+`
+
+You can use Lynx to access your site.
+
+`sh
+lynx http://127.0.0.1/
+`
+
+Ok, let's summarize.
+
+You can host more than one site on a single Apache server. Your site config file
+is stored at /etc/apache2/sites-available/. If you want to enable your site,
+create a symbolic link from /etc/apache2/sites-enabled/ to your site config
+file or use the a2ensite (apache2 enable site) tool.
+
+`sh
+sudo a2ensite YOUR_SITE.conf
+`
+
+To disable specific site, go to /etc/apache2/sites-available/ and use the
+a2dissite (apache2 disable site) tool. For example, disable the default site.
+
+`sh
+sudo a2dissite 000-default.conf
+sudo systemctl reload apache2 # to apply new configuration
+`
+
+You can see the Webroot (where the default website is stored) by displaying the
+content of the default config file. In my case, this is
+/etc/apache2/sites-available/000-default.conf
+
+Before integrating PHP to our Webserver, let's talk about VirtualHost (We will
+create our site). Think about YOUR_DOMAIN (anything). I choose "thuyeu.us" (no
+need to register for a domain name, we use 127.0.0.1. so make sure YOUR_DOMAIN
+is not a public one)
+
+1.1 What is VirtualHost?
+
+Virtual Host lets you create more than one site on a single server. For example,
+you have two domain names that point to the same IP. And you want to serve
+different content based on the domain name. Then, you will need VirtualHost. For
+more and complete information, checkout Apache2 documentation about VirtualHost.
+
+1.2 Setup VirtualHost
+
+Create our site config file in /etc/apache2/sites-available/.
+
+--thuyeu.us.conf
+<VirtualHost *:80>
+	# We will create /var/www/thuyeu.us/ folder later.
+	# This is the root folder of our site.
+	# It contains something likes index.php, ...
+	DocumentRoot "/var/www/thuyeu.us"
+	# When users access your site via domain name thuyeu.us, serve
+	# DocumentRoot folder.
+	ServerName thuyeu.us
+</VirtualHost>
+--
+
+Create DocumentRoot folder.
+
+`sh
+sudo mkdir /var/www/thuyeu.us
+# change ownership to $USER (current user).
+sudo chown -R $USER:$USER /var/www/thuyeu.us
+`
+
+Create an index.html file in /var/www/thuyeu.us/ to test our site. To keep
+everything simple, you can use Vim or ed.
+
+--index.html
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Make Website Fun Again!</title>
+	</head>
+	<body>
+		<p>America is the greatest country in the world.</p>
+	</body>
+</html>
+--
+
+Enable our site with a2ensite tool.
+
+`sh
+sudo a2ensite thuyeu.us
+sudo systemctl reload apache2 # reload configuration
+`
+
+1.3 Set up local domain name resolution
+
+Edit /etc/hosts file and append the following content bellow.
+
+--hosts
+127.0.0.1	thuyeu.us
+--
+
+Now, you can use lynx to access our site. Hope it works!
+
+`sh
+lynx thuyeu.us
+`
+
+2. Integrate PHP to Apache Server
+
+Just install the PHP module on the repository.
+
+`sh
+sudo apt install libapache2-mod-php
+`
+
+After installing, Apache2 should enable the module by default. If not, we can do
+it with the a2enmod (Apache2 enable module) tool.
+
+`sh
+sudo a2enmod php7.4 # Your version may be different. But, you know the key.
+`
+
+Create an index.php file in our site directory /var/www/thuyeu.us/ for
+testing.
+
+--index.php
+<?php
+	echo "<h1>taiprogramer</h1>";
+	echo "<i>- An old-fashioned guy</i>";
+?>
+--
+
+You can use lynx again.
+
+`sh
+lynx thuyeu.us/index.php
+`
+
+3. Integrate MySQL
+
+[TODO] [ALL PULL REQUESTS ARE WELCOME]
+
+If this article is helpful, consider donating to support me. More information
+can be found at https://www.taiprogramer.xyz
+
+                               **** END ****

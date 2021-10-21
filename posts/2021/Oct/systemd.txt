@@ -1,0 +1,82 @@
+                                                         License: Public domain
+
+                  Introduction to Service Management on Systemd
+                                - taiprogramer -
+
+                                                      Date created: Oct 13 2021
+                                                     Last modified: Oct 21 2021
+
+Section 1: Basic terminology
+
+What is daemon?
+- daemon is a process running in the background of the system.
+
+What is init?
+- init is a first process (pid=1) run when the system start and continue
+  running until the computer shutdown, it's a parent of all other processes.
+
+What is systemd?
+- systemd is a init replacement that starts other processes in parallel.
+
+Section 2: Practice
+
+Basic service management
+
+- Some things you can do with service
+systemctl {enable, status, start, stop, restart} service-name.service
+
+For example, to get current status of OpenSSH Server.
+
+systemctl status sshd.service
+
+- See all log messages of service
+journalctl --unit service-name.service
+
+- See log messages for current boot only
+journalctl --unit service-name.service --boot
+
+Create new service
+
+- Create .sh script file act as service body
+
+Location: ~/showlove.sh
+
+------------- showlove.sh -------------
+#!/bin/sh
+
+i=0
+while true; do
+	echo "$i. I love you."
+	i=`expr $i + 1`
+	sleep 1
+done
+------------- showlove.sh -------------
+
+- Create showlove.service file to register our service
+
+Location: /etc/systemd/system/showlove.service
+
+------------- showlove.service -------------
+[Unit]
+Description=Show love service
+
+[Service]
+ExecStart=/home/YOUR_USERNAME/showlove.sh
+------------- showlove.service -------------
+
+- Start the service
+
+sudo systemctl start showlove.service
+
+That's it. Now, you can see the output in a log file located in /var/log/syslog.
+
+sudo tail /var/log/syslog
+
+- Watch output of service in realtime
+
+sudo journalctl -u showlove.service -f
+
+If this article is helpful, consider donating to support me. More information
+can be found at https://www.taiprogramer.xyz
+
+                               **** END ****
