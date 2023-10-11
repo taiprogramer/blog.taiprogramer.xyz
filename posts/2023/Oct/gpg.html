@@ -1,0 +1,92 @@
+<title>Protect data with GPG (GNU Privacy Guard)</title>
+<h1 id="protect-data-with-gpg-gnu-privacy-guard">Protect data with GPG
+(GNU Privacy Guard)</h1>
+<p><strong>Disclaimer:</strong> The document author has published this
+document with the hope that it may be helpful to others. However, the
+author does not guarantee that all information contained in this
+document is correct or accurate. There is no warranty, expressed or
+implied, of merchantability or fitness for any purpose. The author does
+not assume any liability or responsibility for using the information
+contained in this document.</p>
+<p>Date created: Oct 11 2023</p>
+<h2 id="why">Why?</h2>
+<ul>
+<li>My data is important - I have a lot of things to hide :))</li>
+<li>No body cares about your data until they do - protect the data
+now.</li>
+</ul>
+<h2 id="generate-new-key-pair">Generate new key pair</h2>
+<p>We will generate 2 keys: public key &amp; private key. Public key is
+used for encrypting, verifying digital signatures. It can be public and
+should be public, the world will use this key to encrypt the messages
+before sending them to you. On the contrary, the private key is used for
+decrypting, signing.</p>
+<ul>
+<li>Install <strong>gpg</strong>: If you're using the GNU/Linux
+operating system, the software should be available. If you're using
+other OSes, seek the document how to install gpg on these systems, make
+sure you can run gpg in your terminal.</li>
+<li>To generate new key pair:</li>
+</ul>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">gpg</span> <span class="at">--full-generate-key</span></span></code></pre></div>
+<p>Here is the sample output:</p>
+<pre><code>❯ gpg --full-generate-key
+gpg (GnuPG) 2.2.41; Copyright (C) 2022 g10 Code GmbH
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.
+
+Please select what kind of key you want:
+(1) RSA and RSA (default)
+...
+Your selection? 1
+
+RSA keys may be between 1024 and 4096 bits long.
+What keysize do you want? (3072) 4096
+Please specify how long the key should be valid.
+0 = key does not expire
+...
+Key is valid for? (0) 0
+Key does not expire at all
+Is this correct? (y/N) y
+
+GnuPG needs to construct a user ID to identify your key.
+
+Real name: Thomas Shelby
+Email address: tommy_shelby@us.mail
+Comment:
+You selected this USER-ID:
+&quot;Thomas Shelby &lt;tommy_shelby@us.mail&gt;&quot;
+
+Change (N)ame, (C)omment, (E)mail or (O)kay/(Q)uit? O</code></pre>
+<p><strong>gpg</strong> should ask you the password for encrypting the
+private key. Make sure to use the <strong>strong</strong> password.</p>
+<p>Notice the USER-ID, we will use it later "Thomas Shelby &lt;<a
+href="mailto:tommy_shelby@us.mail">tommy_shelby@us.mail</a>&gt;"</p>
+<h2 id="encryptdecrypt-a-file">Encrypt/Decrypt a file</h2>
+<p>You can encrypt/decrypt any type of files (it's just a file). I'll
+demonstrate with a text file (universal interface).</p>
+<p>Create a new text file with your message</p>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span> <span class="op">&gt;</span> for-my-tester.txt <span class="op">&lt;&lt; EOT</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="st">I like you a lot. I want to be part of your life, I want to share everything</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="st">I have, I want to protect you. From now on, you&#39;re protected by the order of</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="st">the Peaky Blinders.</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="op">EOT</span></span></code></pre></div>
+<p>Encrypt the file for 1 recipient (Thomas Shelby &lt;<a
+href="mailto:tommy_shelby@us.mail">tommy_shelby@us.mail</a>&gt;)</p>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">gpg</span> <span class="at">--encrypt</span> <span class="at">--recipient</span> tommy_shelby@us.mail for-my-tester.txt</span></code></pre></div>
+<p>After the command finishes, you'll see the new .gpg file (that's your
+encrypted file).</p>
+<p>To decrypt an encrypted file</p>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">gpg</span> <span class="at">--decrypt</span> <span class="at">--output</span> for-my-tester.new.txt for-my-tester.txt.gpg</span></code></pre></div>
+<p><strong>gpg</strong> will ask you for the passphrase of the private
+key. After the command finishes, you'll see the file named
+for-my-tester.new.txt (that file contains the original content).</p>
+<hr />
+<p>This document is licensed under the Creative Commons Zero v1.0
+Universal.</p>
+<p>Examples, recipes, and other code in this document are additionally
+licensed under the Unlicense.</p>
